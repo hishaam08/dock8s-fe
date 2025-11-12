@@ -5,6 +5,10 @@
   --foreground: #171717;
 }
 
+:root {
+  --font-jetbrains: 'JetBrains Mono', monospace;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -50,4 +54,12 @@ body {
 
 .xterm-viewport::-webkit-scrollbar {
   display: none;
+}
+
+.terminal{
+  height: 100% !important;
+}
+
+.xterm-screen {
+  height: 100% !important;
 }

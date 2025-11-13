@@ -10,11 +10,13 @@ export function useTerminal(
 ) {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const terminal = useRef<Terminal | null>(null);
   const fitAddon = useRef<FitAddon | null>(null);
   const signalRService = useRef<SignalRService | null>(null);
   const inputHandler = useRef<InputHandler | null>(null);
+  const resizeHandler = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const initializeTerminal = async () => {
@@ -26,7 +28,6 @@ export function useTerminal(
         return;
       }
 
-      // Load terminal
       const { terminal: term, fitAddon: fit } = await loadTerminal(
         terminalRef.current
       );
@@ -37,15 +38,6 @@ export function useTerminal(
 
       setIsLoaded(true);
 
-      // Initialize SignalR service
-      signalRService.current = new SignalRService(term, setIsConnected);
-      await signalRService.current.connect();
-
-      // Setup input handler
-      inputHandler.current = new InputHandler(term, signalRService.current);
-      inputHandler.current.setup();
-
-      // Disable mouse wheel scrolling
       if (terminalRef.current) {
         terminalRef.current.addEventListener(
           "wheel",
@@ -53,28 +45,90 @@ export function useTerminal(
           { passive: false }
         );
       }
+
+      await connect();
     };
 
     initializeTerminal();
 
-    const handleResize = () => {
-      fitAddon.current?.fit();
-      const { cols, rows } = terminal.current!;
-      signalRService.current?.sendResize(cols, rows);
-    };
-    window.addEventListener("resize", handleResize);
-
     return () => {
-      window.removeEventListener("resize", handleResize);
-      signalRService.current?.stop();
+      disconnect();
       terminal.current?.dispose();
     };
   }, [terminalRef]);
 
-  const disconnect = async () => {
-    await signalRService.current?.stop();
-    setIsConnected(false);
+  const connect = async () => {
+    if (!terminal.current || isConnected || isConnecting) return;
+
+    setIsConnecting(true);
+
+    try {
+      signalRService.current = new SignalRService(
+        terminal.current,
+        setIsConnected
+      );
+      await signalRService.current.connect();
+
+      inputHandler.current = new InputHandler(
+        terminal.current,
+        signalRService.current
+      );
+      inputHandler.current.setup();
+
+      // Setup resize handler
+      resizeHandler.current = () => {
+        fitAddon.current?.fit();
+        if (terminal.current) {
+          const { cols, rows } = terminal.current;
+          signalRService.current?.sendResize(cols, rows);
+        }
+      };
+      window.addEventListener("resize", resizeHandler.current);
+    } catch (error) {
+      console.error("Connection failed:", error);
+      setIsConnected(false);
+    } finally {
+      setIsConnecting(false);
+    }
   };
 
-  return { isConnected, isLoaded, disconnect };
+  const disconnect = async () => {
+    if (!isConnected && !signalRService.current) return;
+
+    try {
+      if (resizeHandler.current) {
+        window.removeEventListener("resize", resizeHandler.current);
+        resizeHandler.current = null;
+      }
+
+      await signalRService.current?.stop();
+      signalRService.current = null;
+      inputHandler.current = null;
+
+      setIsConnected(false);
+
+      terminal.current?.clear();
+      terminal.current?.writeln("\x1b[33mDisconnected from Docker Daemon\x1b[0m");
+    } catch (error) {
+      console.error("Disconnect error:", error);
+    }
+  };
+
+  const toggleConnection = async () => {
+    if (isConnecting) return;
+
+    if (isConnected) {
+      await disconnect();
+    } else {
+      await connect();
+    }
+  };
+
+  return {
+    isConnected,
+    isLoaded,
+    isConnecting,
+    toggleConnection,
+    disconnect,
+  };
 }

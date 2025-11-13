@@ -13,11 +13,7 @@ export class SignalRService {
 
   async connect(): Promise<void> {
     this.connection = new signalR.HubConnectionBuilder()
-      .withUrl(terminalConfig.signalR.hubUrl(terminalConfig.baseUrl), {
-        skipNegotiation: true,
-        transport: signalR.HttpTransportType.WebSockets,
-        withCredentials: false,
-      })
+      .withUrl(terminalConfig.signalR.hubUrl(terminalConfig.baseUrl))
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build();
@@ -56,6 +52,13 @@ export class SignalRService {
       this.onConnectionChange(false);
       this.isReady = false;
     });
+
+    this.connection.on("StreamClosed", () => {
+      console.log("Docker exec stream ended (EOF)");
+      this.onConnectionChange(false);
+
+      this.terminal.writeln("\r\n\x1b[33m[Session Ended]\x1b[0m\r\n");
+    });
   }
 
   private async start(): Promise<void> {
@@ -64,8 +67,8 @@ export class SignalRService {
       console.log("SignalR Connected");
       this.onConnectionChange(true);
 
-      this.terminal?.writeln("\x1b[36m" + ASCII_ART + "\x1b[0m\r\n");
-      
+      this.terminal?.writeln("\x1b[38;2;180;180;180m" + ASCII_ART + "\x1b[0m");
+
       await this.attachToContainer();
       const { cols, rows } = this.terminal;
       this.sendResize(cols, rows);
@@ -122,6 +125,21 @@ export class SignalRService {
   }
 
   async stop(): Promise<void> {
-    await this.connection?.stop();
+    this.isReady = false;
+
+    // Remove all event handlers
+    if (this.connection) {
+      this.connection.off("ReceiveOutput");
+    }
+
+    // Stop the connection
+    try {
+      await this.connection?.stop();
+      console.log("SignalR connection stopped");
+    } catch (err) {
+      console.error("Error stopping connection:", err);
+    } finally {
+      this.connection = null;
+    }
   }
 }

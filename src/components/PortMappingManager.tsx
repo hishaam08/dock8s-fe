@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { terminalConfig } from "@/config";
 
 interface Route {
   id: string;
@@ -41,7 +42,7 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
   const [subdomain, setSubdomain] = useState("");
   const [error, setError] = useState("");
 
-  const API_URL = "http://localhost:5295/api";
+  const API_URL = terminalConfig.baseUrl + "/api";
   const USER_ID = "test";
 
   useEffect(() => {

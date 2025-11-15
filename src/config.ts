@@ -1,9 +1,9 @@
 export const terminalConfig = {
-  containerId: process.env.CONTAINER_ID || "810e72fe5df2",
-  baseUrl: process.env.BASE_URL || "http://localhost:5295",
+  containerId: process.env.CONTAINER_ID || "ed44fef266af",
+  baseUrl: process.env.BASE_URL || "https://api.dock8s.in",
 
   terminal: {
-    fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+    fontFamily: "'JetBrains Mono', '`Fira` Code', monospace",
     fontSize: 14,
     lineHeight: 1.2,
     letterSpacing: 0.5,

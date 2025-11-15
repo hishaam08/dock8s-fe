@@ -11,7 +11,7 @@ export default function XTerm() {
     useTerminal(terminalRef);
 
   return (
-    <div className="flex flex-col h-screen bg-linear-to-r from-slate-500 to-slate-300 p-1.5 rounded-2xl shadow-[0_0_40px_rgba(59,130,246,0.4)]">
+    <div className="flex flex-col h-dvh bg-linear-to-r from-slate-500 to-slate-300 p-1.5 rounded-2xl shadow-[0_0_40px_rgba(59,130,246,0.4)]">
       <ConnectionStatus
         isConnected={isConnected}
         onToggleConnection={toggleConnection}

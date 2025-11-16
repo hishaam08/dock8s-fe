@@ -18,6 +18,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogHeader,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { terminalConfig } from "@/config";
 
 interface Route {
@@ -53,9 +64,7 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(
-        `${API_URL}/expose?userId=${USER_ID}`
-      );
+      const response = await fetch(`${API_URL}/expose?userId=${USER_ID}`);
       if (response.ok) {
         const data = await response.json();
         setRoutes(data);
@@ -103,7 +112,6 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
       setSubdomain("");
       console.log("Routes", routes);
       console.log("New Route", newRoute);
-      
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -112,13 +120,13 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
   };
 
   const deleteRoute = async (routeId: string) => {
-    if (!confirm("Delete this route? The subdomain will become unavailable."))
-      return;
-
     try {
-      const response = await fetch(`${API_URL}/expose/${routeId}?userId=${USER_ID}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `${API_URL}/expose/${routeId}?userId=${USER_ID}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete route");
@@ -131,17 +139,17 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full max-w-full overflow-x-hidden">
       {/* Create New Route Form */}
-      <Card>
+      <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-lg">Create New Route</CardTitle>
-          <CardDescription>
+          <CardDescription className="wrap-break-word">
             Expose a container port via a subdomain
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
             <div className="space-y-2">
               <Label htmlFor="port">Container Port *</Label>
               <Input
@@ -157,6 +165,7 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
                 Port your app is running on
               </p>
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="subdomain">Subdomain (Optional)</Label>
               <Input
@@ -177,8 +186,8 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
           </div>
 
           {port && (
-            <Alert>
-              <AlertDescription>
+            <Alert className="w-full">
+              <AlertDescription className="break-all text-sm">
                 <span className="font-medium">Preview:</span>{" "}
                 {subdomain || port}.{USER_ID}.dock8s.in → container:{port}
               </AlertDescription>
@@ -244,29 +253,29 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-3 w-full">
           {routes.map((route) => (
-            <Card key={route.port}>
+            <Card key={route.port} className="w-full">
               <CardContent className="pt-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h4 className="font-semibold text-base">
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0 w-full">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <h4 className="font-semibold text-base break-all">
                         {route.subdomain}.dock8s.in
                       </h4>
-                      <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full whitespace-nowrap">
                         {route.status}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground font-mono">
+                    <p className="text-sm text-muted-foreground font-mono break-all">
                       → Container Port: {route.port}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-1 break-words">
                       Created: {new Date(route.createdAt).toLocaleString()}
                     </p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" asChild>
+                  <div className="flex gap-2 w-full sm:w-auto sm:pl-2">
+                    <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
                       <a
                         href={route.url}
                         target="_blank"
@@ -275,13 +284,33 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
                         <ExternalLink className="w-4 h-4" />
                       </a>
                     </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => deleteRoute(route.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm" className="flex-1 sm:flex-none">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Route?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This subdomain will be permanently deleted and will
+                            no longer be accessible.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => deleteRoute(route.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               </CardContent>

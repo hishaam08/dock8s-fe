@@ -1,5 +1,5 @@
 export const terminalConfig = {
-  containerId: process.env.CONTAINER_ID || "ed44fef266af",
+  containerId: process.env.CONTAINER_ID || "0e4502ee5512",
   baseUrl: process.env.BASE_URL || "https://api.dock8s.in",
 
   terminal: {
@@ -52,13 +52,46 @@ export const terminalConfig = {
   },
 };
 
-export const ASCII_ART = `
-$$$$$$$\\                      $$\\       $$$$$$\\            
-$$  __$$\\                     $$ |     $$  __$$\\           
-$$ |  $$ | $$$$$$\\   $$$$$$$\\ $$ |  $$\\$$ /  $$ | $$$$$$$\\ 
-$$ |  $$ |$$  __$$\\ $$  _____|$$ | $$  $$$$$$  |$$  _____|
-$$ |  $$ |$$ /  $$ |$$ /      $$$$$$  /$$  __$$< \\$$$$$$\\ 
-$$ |  $$ |$$ |  $$ |$$ |      $$  _$$< $$ /  $$ | \\____$$\\
-$$$$$$$  |\\$$$$$$  |\\$$$$$$$\\ $$ | \\$$\\\\$$$$$$  |$$$$$$$  |
-\\_______/  \\______/  \\_______|\\__|  \\__|\\______/ \\_______/
+export const ASCII_ART = `Welcome to Dock8s - Your Cloud Container Environment!
+
+Getting Started:
+  • Use 'docker ps' to list running containers
+  • Run 'docker pull <image>' to download images
+
+Quick Tips:
+  • All Docker commands work just like your local machine
+  • Use the Globe icon (top-right) to expose container ports via subdomains
+  • Your containers are isolated and secure in the cloud
+
+Common Commands:
+  • docker run -d -p 3000:3000 myapp    - Run a container with port mapping
+  • docker logs <container-id>          - View container logs
+  • docker exec -it <container-id> sh   - Access container shell (use 'bash' for best experience)
+  • docker-compose up -d                - Start services from docker-compose.yml
+
+Port Mapping:
+  • Click the Globe icon to create public URLs for your container ports
+  • Example: Expose port 3000 → get https://p3000.user.dock8s.in
+
+Need help? Type 'docker --help'.
+Happy containerizing! 🐳
+`;
+
+export const MOBILE_ASCII_ART = `Welcome to Dock8s! 🐳
+
+Quick Start:
+  • docker ps - list containers
+  • docker pull <img> - download
+  • Globe (↗) - expose ports
+
+Commands:
+  docker run -d -p 3000:3000 app
+  docker logs <id>
+  docker exec -it <id> sh
+
+Port Mapping:
+  Globe → public URLs
+  Ex: 3000 → p3000.user.dock8s.in
+
+Type 'docker --help'
 `;

@@ -1,6 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import type { Terminal } from "@xterm/xterm";
-import { terminalConfig, ASCII_ART } from "../config";
+import { terminalConfig, ASCII_ART, MOBILE_ASCII_ART } from "../config";
 
 export class SignalRService {
   private connection: signalR.HubConnection | null = null;
@@ -67,11 +67,18 @@ export class SignalRService {
       console.log("SignalR Connected");
       this.onConnectionChange(true);
 
-      this.terminal?.writeln("\x1b[38;2;180;180;180m" + ASCII_ART + "\x1b[0m");
+      // Get terminal dimensions
+      const { cols } = this.terminal;
+      const isMobile = cols < 80;
+
+      // Choose appropriate intro text based on width
+      const introText = isMobile ? MOBILE_ASCII_ART : ASCII_ART;
+
+      this.terminal?.writeln("\x1b[38;2;180;180;180m" + introText + "\x1b[0m");
 
       await this.attachToContainer();
-      const { cols, rows } = this.terminal;
-      this.sendResize(cols, rows);
+      const { cols: termCols, rows } = this.terminal;
+      this.sendResize(termCols, rows);
 
       setTimeout(() => {
         this.isReady = true;
@@ -85,7 +92,6 @@ export class SignalRService {
       this.onConnectionChange(false);
     }
   }
-
   private async attachToContainer(): Promise<void> {
     try {
       await this.connection?.invoke("Attach", terminalConfig.containerId);

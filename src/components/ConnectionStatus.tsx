@@ -58,16 +58,16 @@ export function ConnectionStatus({
               } disabled:opacity-50 disabled:cursor-not-allowed`}
               title="Port Mappings"
             >
-              <Globe size={18} />
+              <Globe size={18} className="text-gray-900"/>
             </button>
           </DialogTrigger>
-          <DialogContent className={`lg:max-w-[800px]! w-full max-h-[85dvh] overflow-y-auto scrollbar-hide font-jetbrains-mono ${jetbrainsMono.className}`}>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Globe className="w-5 h-5 text-green-600" />
-                Port Mappings & Routes
+          <DialogContent className={`lg:max-w-[800px] w-full max-h-[85dvh] overflow-y-auto scrollbar-hide font-jetbrains-mono ${jetbrainsMono.className} bg-[#c8cfd2]`}>
+            <DialogHeader className="pr-8">
+              <DialogTitle className="flex items-center gap-2 text-left">
+                <Globe className="w-5 h-5 text-green-600 shrink-0" />
+                <span className="wrap-break-word">Port Mappings & Routes</span>
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-left">
                 Manage dynamic subdomain routing to your container ports
               </DialogDescription>
             </DialogHeader>
@@ -75,7 +75,6 @@ export function ConnectionStatus({
           </DialogContent>
         </Dialog>
 
-        {/* Connection Toggle */}
         <button
           onClick={onToggleConnection}
           disabled={isLoading}

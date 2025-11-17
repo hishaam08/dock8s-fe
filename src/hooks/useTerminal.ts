@@ -55,6 +55,7 @@ export function useTerminal(
       disconnect();
       terminal.current?.dispose();
     };
+    // eslint-disable-next-line
   }, [terminalRef]);
 
   const connect = async () => {

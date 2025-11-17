@@ -45,7 +45,7 @@ export function ConnectionStatus({
             className=""
           />
         </button>
-        <div className="h-4 w-[1px] bg-gray-400/50 mx-2" />
+        <div className="h-4 w-px bg-gray-400/50 mx-2" />
         <div
           className={`w-3 h-3 rounded-full transition-colors ${
             isConnected

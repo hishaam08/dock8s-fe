@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { JetBrains_Mono } from 'next/font/google';
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { auth } from "@/auth";
+import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -9,9 +11,9 @@ const geistSans = Geist({
 });
 
 const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-jetbrains',
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -21,24 +23,28 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Playground - Dock8s",
-  description: "A web-based terminal playground built with Next.js and XTerm.js",
+  description:
+    "A web-based terminal playground built with Next.js and XTerm.js",
   icons: {
     icon: "/favicon.ico",
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
+    <SessionProvider session={session}>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased`}
+        >
+          {children}
+        </body>
+      </html>
+    </SessionProvider>
   );
 }

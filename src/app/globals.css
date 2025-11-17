@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --font-jetbrains: 'JetBrains Mono', monospace;
+  --font-jetbrains: "JetBrains Mono", monospace;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -39,11 +39,14 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -53,7 +56,11 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-img, picture, video, canvas, svg {
+img,
+picture,
+video,
+canvas,
+svg {
   display: block;
   max-width: 100%;
 }
@@ -121,7 +128,7 @@ body {
   display: none;
 }
 
-.terminal{
+.terminal {
   height: 100% !important;
 }
 
@@ -170,4 +177,18 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes spin-x-slow {
+  0% {
+    transform: rotateX(0deg);
+  }
+  100% {
+    transform: rotateX(360deg);
+  }
+}
+
+.spin-x-slow {
+  animation: spin-x-slow 6s linear infinite;
+  transform-style: preserve-3d;
 }

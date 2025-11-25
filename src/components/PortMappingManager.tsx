@@ -52,20 +52,31 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
   const [port, setPort] = useState("");
   const [subdomain, setSubdomain] = useState("");
   const [error, setError] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
 
   const API_URL = terminalConfig.baseUrl + "/api";
   const USER_ID = "test";
 
   useEffect(() => {
-    loadRoutes();
+    if (typeof window !== "undefined") {
+      const storedId = localStorage.getItem("userId");
+      setUserId(storedId);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userId) loadRoutes();
     // eslint-disable-next-line
-  }, [containerId]);
+  }, [containerId, userId]);
 
   const loadRoutes = async () => {
+    if (!userId) return;
+
     setLoading(true);
     setError("");
+
     try {
-      const response = await fetch(`${API_URL}/expose?userId=${USER_ID}`);
+      const response = await fetch(`${API_URL}/expose?userId=${userId}`);
       if (response.ok) {
         const data = await response.json();
         setRoutes(data);
@@ -87,6 +98,11 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
       return;
     }
 
+    if (!userId) {
+      setError("No user ID found");
+      return;
+    }
+
     setCreating(true);
     setError("");
 
@@ -98,7 +114,7 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
           port: port,
           subdomain: subdomain || null,
           containerId: containerId,
-          userId: "test",
+          userId: userId, // ← dynamic
         }),
       });
 
@@ -111,9 +127,6 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
       setRoutes([...routes, newRoute]);
       setPort("");
       setSubdomain("");
-      console.log("Routes", routes);
-      console.log("New Route", newRoute);
-      // eslint-disable-next-line
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -122,9 +135,11 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
   };
 
   const deleteRoute = async (routeId: string) => {
+    if (!userId) return;
+
     try {
       const response = await fetch(
-        `${API_URL}/expose/${routeId}?userId=${USER_ID}`,
+        `${API_URL}/expose/${routeId}?userId=${userId}`,
         {
           method: "DELETE",
         }
@@ -135,16 +150,15 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
       }
 
       setRoutes(routes.filter((r) => r.id !== routeId));
-      // eslint-disable-next-line
     } catch (err: any) {
       setError(err.message);
     }
   };
 
   return (
-    <div className="space-y-4 w-full max-w-full overflow-x-hidden">
+    <div className="space-y-4 w-full max-w-full overflow-x-hidden bg-[#34393b]">
       {/* Create New Route Form */}
-      <Card className="w-full">
+      <Card className="w-full text-[#e8e6e3] bg-[#181a1b] border-[#34393b]">
         <CardHeader>
           <CardTitle className="text-lg">Create New Route</CardTitle>
           <CardDescription className="wrap-break-word">
@@ -153,7 +167,7 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-            <div className="space-y-2">
+            <div className="space-y-2 border-[#34393b]">
               <Label htmlFor="port">Container Port *</Label>
               <Input
                 id="port"
@@ -163,6 +177,7 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
                 onChange={(e) => setPort(e.target.value)}
                 min={1}
                 max={65535}
+                className="border-[#373c3e]"
               />
               <p className="text-xs text-muted-foreground">
                 Port your app is running on
@@ -181,6 +196,7 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
                     e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")
                   )
                 }
+                className="border-[#373c3e]"
               />
               <p className="text-xs text-muted-foreground">
                 Custom subdomain name
@@ -189,10 +205,10 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
           </div>
 
           {port && (
-            <Alert className="w-full">
+            <Alert className="w-full text-[#e8e6e3] bg-[#181a1b] border-[#34393b]">
               <AlertDescription className="break-all text-sm">
                 <span className="font-medium">Preview:</span>{" "}
-                {subdomain || port}.{USER_ID}.dock8s.in → container:{port}
+                {subdomain || port}.{userId}.dock8s.in → container:{port}
               </AlertDescription>
             </Alert>
           )}
@@ -232,6 +248,7 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
           size="sm"
           onClick={loadRoutes}
           disabled={loading}
+          className="bg-[#181a1b] border-[#34393b]"
         >
           <RefreshCw
             className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`}
@@ -245,7 +262,7 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
       ) : routes.length === 0 ? (
-        <Card>
+        <Card className="bg-[#181a1b] border-[#34393b]">
           <CardContent className="flex flex-col items-center justify-center py-8 text-center">
             <Globe className="w-12 h-12 text-muted-foreground mb-2" />
             <p className="text-muted-foreground">No routes configured yet</p>
@@ -257,27 +274,32 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
       ) : (
         <div className="grid gap-3 w-full">
           {routes.map((route) => (
-            <Card key={route.port} className="w-full">
+            <Card key={route.port} className="w-full bg-[#181a1b] border-[#34393b]">
               <CardContent className="pt-6">
                 <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                   <div className="flex-1 min-w-0 w-full">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <h4 className="font-semibold text-base break-all">
+                      <h4 className="font-semibold text-base break-all text-[#e8e6e3]">
                         {route.subdomain}.dock8s.in
                       </h4>
-                      <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full whitespace-nowrap">
+                      <span className="px-2 py-0.5 bg-[#064527] text-[#71ffac] text-xs rounded-full whitespace-nowrap">
                         {route.status}
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground font-mono break-all">
                       → Container Port: {route.port}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1 break-words">
+                    <p className="text-xs text-muted-foreground mt-1 wrap-break-words">
                       Created: {new Date(route.createdAt).toLocaleString()}
                     </p>
                   </div>
                   <div className="flex gap-2 w-full sm:w-auto sm:pl-2">
-                    <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="flex-1 sm:flex-none bg-[#181a1b] border-[#34393b] text-[#e8e6e3]"
+                    >
                       <a
                         href={route.url}
                         target="_blank"
@@ -288,12 +310,16 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm" className="flex-1 sm:flex-none">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="flex-1 sm:flex-none bg-red-900"
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </AlertDialogTrigger>
 
-                      <AlertDialogContent>
+                      <AlertDialogContent className="bg-[#181a1b] border-[#34393b] text-[#e8e6e3]">
                         <AlertDialogHeader>
                           <AlertDialogTitle>Delete Route?</AlertDialogTitle>
                           <AlertDialogDescription>
@@ -303,7 +329,7 @@ export function PortMappingManager({ containerId }: PortMappingManagerProps) {
                         </AlertDialogHeader>
 
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel className="text-slate-800">Cancel</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => deleteRoute(route.id)}
                             className="bg-red-600 hover:bg-red-700"

@@ -5,13 +5,21 @@ import { terminalConfig, ASCII_ART, MOBILE_ASCII_ART } from "../config";
 export class SignalRService {
   private connection: signalR.HubConnection | null = null;
   private isReady = false;
+  private containerId: string | null = null;
 
   constructor(
     private terminal: Terminal,
     private onConnectionChange: (connected: boolean) => void
   ) {}
 
-  async connect(): Promise<void> {
+  async connect(containerId: string): Promise<void> {
+    if (this.connection) {
+      console.warn("Already connected, disconnecting first...");
+      await this.stop();
+    }
+
+    this.containerId = containerId;
+    ``;
     this.connection = new signalR.HubConnectionBuilder()
       .withUrl(terminalConfig.signalR.hubUrl(terminalConfig.baseUrl))
       .withAutomaticReconnect()
@@ -38,7 +46,9 @@ export class SignalRService {
     this.connection.onreconnected(() => {
       console.log("Reconnected to SignalR");
       this.onConnectionChange(true);
-      this.attachToContainer();
+      if (this.containerId) {
+        this.attachToContainer();
+      }
     });
 
     this.connection.onreconnecting(() => {
@@ -55,9 +65,22 @@ export class SignalRService {
 
     this.connection.on("StreamClosed", () => {
       console.log("Docker exec stream ended (EOF)");
-      this.onConnectionChange(false);
 
-      this.terminal.writeln("\r\n\x1b[33m[Session Ended]\x1b[0m\r\n");
+      // Show message in terminal
+      this.terminal.writeln(
+        "\r\n\x1b[33m[Session Ended - Stream Closed]\x1b[0m\r\n"
+      );
+
+      // Automatically disconnect the SignalR connection
+      this.stop()
+        .then(() => {
+          console.log("✅ Auto-disconnected after stream closure");
+          this.onConnectionChange(false);
+        })
+        .catch((err) => {
+          console.error("❌ Error during auto-disconnect:", err);
+          this.onConnectionChange(false);
+        });
     });
   }
 
@@ -76,9 +99,14 @@ export class SignalRService {
 
       this.terminal?.writeln("\x1b[38;2;180;180;180m" + introText + "\x1b[0m");
 
-      await this.attachToContainer();
-      const { cols: termCols, rows } = this.terminal;
-      this.sendResize(termCols, rows);
+      // Attach to the user's specific container
+      if (this.containerId) {
+        await this.attachToContainer();
+        const { cols: termCols, rows } = this.terminal;
+        this.sendResize(termCols, rows);
+      } else {
+        throw new Error("No container ID provided");
+      }
 
       setTimeout(() => {
         this.isReady = true;
@@ -92,12 +120,18 @@ export class SignalRService {
       this.onConnectionChange(false);
     }
   }
+
   private async attachToContainer(): Promise<void> {
+    if (!this.containerId) {
+      throw new Error("Cannot attach: No container ID");
+    }
+
     try {
-      await this.connection?.invoke("Attach", terminalConfig.containerId);
-      console.log("Attached to container:", terminalConfig.containerId);
+      await this.connection?.invoke("Attach", this.containerId);
+      console.log("Attached to container:", this.containerId);
     } catch (err) {
       console.error("Attach failed:", err);
+      throw err;
     }
   }
 
@@ -105,7 +139,6 @@ export class SignalRService {
     if (this.connection?.state === signalR.HubConnectionState.Connected) {
       try {
         await this.connection.invoke("SendInput", input);
-        console.log("Command sent successfully");
       } catch (err) {
         console.error("Error sending command:", err);
         this.terminal?.writeln(`\r\n\x1b[31mError: ${err}\x1b[0m\r\n`);
@@ -130,12 +163,18 @@ export class SignalRService {
     return this.connection?.state ?? null;
   }
 
+  getContainerId(): string | null {
+    return this.containerId;
+  }
+
   async stop(): Promise<void> {
     this.isReady = false;
+    this.containerId = null;
 
     // Remove all event handlers
     if (this.connection) {
       this.connection.off("ReceiveOutput");
+      this.connection.off("StreamClosed");
     }
 
     // Stop the connection

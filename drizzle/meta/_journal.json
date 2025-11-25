@@ -8,6 +8,13 @@
       "when": 1763397698211,
       "tag": "0000_foamy_pepper_potts",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1763484833763,
+      "tag": "0001_cool_star_brand",
+      "breakpoints": true
     }
   ]
 }

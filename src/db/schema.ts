@@ -1,13 +1,16 @@
 import {
-  boolean,
-  timestamp,
   pgTable,
   text,
-  primaryKey,
+  timestamp,
   integer,
-} from "drizzle-orm/pg-core";
+  bigint,
+  jsonb,
+  index,
+  boolean,
+  primaryKey
+} from "drizzle-orm/pg-core"; 
 import type { AdapterAccountType } from "@auth/core/adapters";
- 
+
 export const users = pgTable("user", {
   id: text("id")
     .primaryKey()
@@ -89,4 +92,37 @@ export const authenticators = pgTable(
       }),
     },
   ]
+);
+
+export const containerSessions = pgTable(
+  "ContainerSession",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("userId").notNull(),
+    containerId: text("containerId").notNull(),
+    containerName: text("containerName").notNull(),
+    createdAt: timestamp("createdAt", { mode: "date" }).notNull(),
+    expiresAt: timestamp("expiresAt", { mode: "date" }).notNull(),
+    lastActivityAt: timestamp("lastActivityAt", { mode: "date" }),
+    status: text("status").notNull().default("active"),
+    cpuLimit: integer("cpuLimit").notNull().default(1),
+    memoryLimit: bigint("memoryLimit", { mode: "number" })
+      .notNull()
+      .default(2147483648), // 2GB in bytes
+
+    metadata: jsonb("metadata")
+      .$type<Record<string, string>>()
+      .notNull()
+      .default({}),
+  },
+  (table) => {
+    return {
+      userIdIdx: index("container_session_user_id_idx").on(table.userId),
+      containerIdIdx: index("container_session_container_id_idx").on(
+        table.containerId
+      ),
+    };
+  }
 );

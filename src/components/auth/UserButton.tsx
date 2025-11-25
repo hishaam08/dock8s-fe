@@ -43,9 +43,9 @@ export const UserButton = () => {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="sm:w-14 md:w-45">
+      <DropdownMenuContent align="end" className="sm:w-14 md:w-45 bg-[#181a1b] border-[#34393b] text-[#e8e6e3] hover:bg-[#242627]">
         <DropdownMenuItem
-          className={`h-7 ${jetbrainsMono.className}`}
+          className={`h-7 ${jetbrainsMono.className} bg-[#181a1b] border-[#34393b] text-[#e8e6e3]`}
           onClick={() => {
             localStorage.removeItem("authToken");
             signOut({ callbackUrl: "/" });

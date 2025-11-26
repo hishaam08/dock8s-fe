@@ -7,6 +7,13 @@ import { useDindSession } from "../hooks/useDindSession";
 import { ConnectionStatus } from "./ConnectionStatus";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { JetBrains_Mono } from "next/font/google";
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  display: "swap",
+});
 
 export default function XTerm() {
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -89,27 +96,17 @@ export default function XTerm() {
           <div className="flex flex-col items-center justify-center h-full">
             <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
             <p className="text-slate-400">
-              {isRecreating ? "Recreating session..." : "Creating your container..."}
+              {isRecreating
+                ? "Recreating session..."
+                : "Firing up your docker environment..."}
             </p>
             <p className="text-slate-500 text-sm mt-2">
               This may take a few seconds
             </p>
           </div>
         ) : !session ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <AlertCircle className="w-12 h-12 text-orange-500 mb-4" />
-            <p className="text-slate-400">No active session</p>
-            <p className="text-slate-500 text-sm mt-2 mb-4">
-              {sessionError || "Session may have expired"}
-            </p>
-            <Button
-              onClick={handleRecreateSession}
-              disabled={sessionLoading || isRecreating}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Create New Session
-            </Button>
+          <div className="flex flex-col items-center justify-center h-full text-slate-300/70">
+            Session Expired
           </div>
         ) : (
           <div ref={terminalRef} className="flex-1 w-full h-full" />
@@ -118,20 +115,25 @@ export default function XTerm() {
 
       {/* Footer with Session Info */}
       {session && !isRecreating && (
-        <div className="mt-2 px-4 py-1 bg-slate-800/30 rounded-lg">
+        <div className="mt-1.5 px-4 py-1 bg-slate-800/30 rounded-lg">
           <div className="flex justify-between items-center text-xs text-slate-400/80">
-            <div className="flex gap-4">
-              <span>Session: {session.sessionId.slice(0, 8)}</span>
-              <span>Container: {session.containerName}</span>
+            <div className={`flex gap-4 ${jetbrainsMono.className}`}>
+              <span className="hidden sm:inline">
+                Session: {session.sessionId.slice(0, 8)}
+              </span>
+
+              <span className="hidden sm:inline">
+                Container: {session.containerName}
+              </span>
               <span
                 className={
                   remainingMinutes <= 5 ? "text-orange-400 font-semibold" : ""
                 }
               >
-                {remainingMinutes}min remaining
+                {remainingMinutes} min remaining
               </span>
             </div>
-            <div>
+            <div className={`${jetbrainsMono.className}`}>
               {isConnected ? (
                 <span className="text-green-400">● Connected</span>
               ) : (

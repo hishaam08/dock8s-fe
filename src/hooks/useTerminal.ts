@@ -103,7 +103,7 @@ export function useTerminal(
     const containerToConnect = targetContainerId || containerId;
 
     if (!terminal.current) {
-      console.error("❌ Cannot connect: Terminal not initialized");
+      // console.error("❌ Cannot connect: Terminal not initialized");
       return;
     }
 

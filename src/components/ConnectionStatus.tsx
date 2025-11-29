@@ -178,7 +178,7 @@ export function ConnectionStatus({
                 ? "hover:bg-red-800/30 text-red-600 hover:text-red-700"
                 : "hover:bg-green-50 text-green-600 hover:text-green-700"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
-            title={isConnected ? "Terminate Session" : "Connect"}
+            title={isConnected ? "Terminate current session" : "Create a new session"}
           >
             <Power
               size={18}

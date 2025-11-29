@@ -49,33 +49,6 @@ export default function XTerm() {
     }
   }, [session, isConnected, disconnect, isRecreating]);
 
-  const handleRecreateSession = async () => {
-    console.log("🔄 Recreating session...");
-    setIsRecreating(true); // Disable auto-connect
-
-    try {
-      // Disconnect if connected
-      if (isConnected) {
-        await disconnect();
-      }
-
-      // Wait for cleanup
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Create new session
-      await getOrCreateSession();
-
-      console.log("✅ Session recreated");
-    } catch (error) {
-      console.error("❌ Failed to recreate session:", error);
-    } finally {
-      // Re-enable auto-connect after a delay
-      setTimeout(() => {
-        setIsRecreating(false);
-      }, 500);
-    }
-  };
-
   return (
     <div className="flex flex-col h-dvh bg-linear-to-r from-[#4e5d72] to-[#2f3335] p-1.5 rounded-2xl shadow-[0_0_40px_rgba(59,130,246,0.4)]">
       <ConnectionStatus
@@ -93,7 +66,7 @@ export default function XTerm() {
       {/* Terminal Container */}
       <div className="flex flex-col flex-1 bg-[#171819] rounded-xl p-5 overflow-hidden backdrop-blur-sm">
         {sessionLoading || isRecreating ? (
-          <div className="flex flex-col items-center justify-center h-full">
+          <div className={`flex flex-col items-center justify-center h-full ${jetbrainsMono.className}`}>
             <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
             <p className="text-slate-400">
               {isRecreating

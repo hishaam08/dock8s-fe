@@ -38,42 +38,42 @@ export function useDindSession(options: UseDindSessionOptions = {}) {
   }, []);
 
   const getOrCreateSession = useCallback(async () => {
-  setLoading(true);
-  setError(null);
-  setShowWarning(false); // Reset warning state
+    setLoading(true);
+    setError(null);
+    setShowWarning(false); // Reset warning state
 
-  try {
-    const token = getAuthToken();
-    if (!token) {
-      throw new Error("No authentication token found");
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const response = await fetch(`${API_URL}/container/session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ jwtToken: token }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create session");
+      }
+
+      const data: ContainerSession = await response.json();
+      setSession(data);
+
+      console.log("✅ Session ready:", data.containerName);
+      return data;
+    } catch (err: any) {
+      setError(err.message);
+      console.error("❌ Session error:", err);
+      return null;
+    } finally {
+      setLoading(false);
     }
-
-    const response = await fetch(`${API_URL}/container/session`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ jwtToken: token }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to create session");
-    }
-
-    const data: ContainerSession = await response.json();
-    setSession(data);
-
-    console.log("✅ Session ready:", data.containerName);
-    return data;
-  } catch (err: any) {
-    setError(err.message);
-    console.error("❌ Session error:", err);
-    return null;
-  } finally {
-    setLoading(false);
-  }
-}, [API_URL, getAuthToken]);
+  }, [API_URL, getAuthToken]);
 
   const sendHeartbeat = useCallback(async () => {
     try {
@@ -189,7 +189,7 @@ export function useDindSession(options: UseDindSessionOptions = {}) {
   useEffect(() => {
     if (autoConnect && !hasConnected.current) {
       hasConnected.current = true;
-      console.log("Auto-Connect session")
+      console.log("Auto-Connect session");
       getOrCreateSession();
     }
 

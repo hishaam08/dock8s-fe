@@ -78,7 +78,7 @@ export default function XTerm() {
             </p>
           </div>
         ) : !session ? (
-          <div className="flex flex-col items-center justify-center h-full text-slate-300/70">
+          <div className={`flex flex-col items-center justify-center h-full text-slate-300/70  ${jetbrainsMono.className}`}>
             Session Expired
           </div>
         ) : (

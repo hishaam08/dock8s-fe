@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import LenisProvider from "@/components/LenisProvider";
-import LenisScrollTo from "@/components/LenisScrollTo";
 import Image from "next/image";
 import Link from "next/link";
 

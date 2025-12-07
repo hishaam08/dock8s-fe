@@ -192,3 +192,28 @@ body {
   animation: spin-x-slow 6s linear infinite;
   transform-style: preserve-3d;
 }
+
+/* interactive-grid */
+.interactive-grid {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100svh;
+  z-index: -1; /* behind content */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.interactive-grid .block {
+  position: absolute;
+  border: 0.5px solid #5e5d5d25; /* zinc-300 equivalent */
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  will-change: transform;
+}
+
+.interactive-grid .block.highlight {
+  border-color: #ee643679; /* zinc-500 equivalent */
+}
+

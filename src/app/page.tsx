@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import InteractiveGridScript from "@/components/InteractiveGridScript";
 import LenisProvider from "@/components/LenisProvider";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,35 +9,32 @@ export default async function Home() {
 
   return (
     <LenisProvider>
-      <div className="relative min-h-screen w-full overflow-x-hidden bg-white text-zinc-800 font-sans">
-        <div
+      <InteractiveGridScript />
+      <div className="interactive-grid"></div>
+
+      <div className="relative min-h-screen w-full overflow-x-hidden text-zinc-800 font-sans">
+        {/* <div
           className="absolute inset-0 opacity-40
       bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)]
       [background-size:4rem_4rem]"
-        />
+        /> */}
 
         <main className="relative flex flex-col min-h-screen">
-          {/* ---- HERO SECTION (FULL SCREEN) ---- */}
-          <section className="relative flex flex-col justify-between min-h-screen px-6 md:px-12 md:pt-10">
-            <div className="max-w-5xl w-full mx-auto">
-              {/* Floating light orb */}
+          <section className="relative flex flex-col justify-between min-h-screen px-6 sm:mt-8 md:mt-0 md:px-12 md:pt-10">
+            <div className="max-w-8xl w-full mx-auto">
               <div className="pointer-events-none absolute inset-x-0 top-10 flex justify-center -z-10">
                 <div className="h-72 w-72 md:h-96 md:w-96 rounded-full bg-gradient-to-br from-blue-200/50 via-blue-100/20 to-transparent blur-3xl opacity-70" />
               </div>
 
-              {/* Glass hero card (LIGHT) */}
               <div className="relative overflow-hidden rounded-3xl border border-zinc-200/60 bg-white/70 backdrop-blur-2xl px-6 py-12 shadow-[0_18px_60px_rgba(0,0,0,0.08)] md:px-10 md:py-14">
-                {/* Accent top line */}
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-zinc-300/60 to-transparent" />
 
-                {/* Badge */}
                 <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/80 px-3 py-1 text-xs text-zinc-600">
                   <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
                   <span>Isolated Docker environments in seconds</span>
                 </div>
 
                 <div className="grid gap-10 md:grid-cols-[1.6fr_1fr] md:items-center">
-                  {/* LEFT: HERO TEXT */}
                   <div className="flex flex-col gap-6">
                     <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-zinc-900">
                       Build, deploy & test{" "}
@@ -68,7 +66,7 @@ export default async function Home() {
                             href="/api/auth/signin"
                             className="inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-medium text-white shadow-lg hover:bg-blue-700 transition"
                           >
-                            Get started free
+                            Get started
                           </Link>
                         </>
                       )}
@@ -77,8 +75,8 @@ export default async function Home() {
                     {/* Mini Stats */}
                     <div className="mt-3 flex flex-wrap gap-6 text-xs text-zinc-500">
                       <span>
-                        <strong className="text-zinc-800">&lt;10s</strong> env
-                        creation
+                        <strong className="text-zinc-800">&lt;15s</strong>{" "}
+                        environment creation
                       </span>
                       <span>
                         <strong className="text-zinc-800">Public URLs</strong>{" "}
@@ -93,7 +91,6 @@ export default async function Home() {
                     </div>
                   </div>
 
-                  {/* RIGHT: TERMINAL CARD (LIGHT THEME) */}
                   <div className="relative">
                     <div className="absolute -inset-6 -z-10 bg-blue-200/40 blur-2xl opacity-70" />
                     <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white/80 shadow-lg backdrop-blur-xl">
@@ -164,12 +161,23 @@ export default async function Home() {
             id="how-it-works"
             className="relative flex items-center flex-col gap-5"
           >
-            <div className="max-w-[85%] relative w-full min-h-[75vh] md:min-h-screen flex items-center justify-center">
+            <div className="hidden md:flex max-w-[85%] relative w-full min-h-[75vh] md:min-h-screen items-center justify-center">
               <Image
                 src="/terminal-communication.svg"
                 alt=""
                 fill
                 className="object-contain"
+              />
+            </div>
+
+            {/* MOBILE IMAGE */}
+            <div className="flex md:hidden w-[90%] relative min-h-full items-center justify-center">
+              <Image
+                src="/terminal-communication-mobile.svg"
+                alt=""
+                width={900}
+                height={900}
+                className="w-[90%] h-auto object-contain"
               />
             </div>
 

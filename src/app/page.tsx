@@ -203,7 +203,7 @@ export default async function Home() {
               />
             </div>
 
-            <div className="flex md:hidden w-[90%] relative min-h-full items-center justify-center">
+            <div className="flex md:hidden pt-20 w-[90%] relative min-h-full items-center justify-center">
               <Image
                 src="/networking-flow-mobile.svg"
                 alt=""
@@ -225,7 +225,7 @@ export default async function Home() {
               />
             </div>
 
-            <div className="flex md:hidden w-[90%] pb-10 h-full relative min-h-full items-center justify-center">
+            <div className="flex md:hidden pt-20 w-[90%] pb-10 h-full relative min-h-full items-center justify-center">
               <Image
                 src="/container-management-mobile.svg"
                 alt=""

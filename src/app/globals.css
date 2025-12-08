@@ -207,7 +207,7 @@ body {
 
 .interactive-grid .block {
   position: absolute;
-  border: 0.5px solid #8e8d8d26; /* zinc-300 equivalent */
+  border: 0.5px solid #8e8d8d16; /* zinc-300 equivalent */
   transition: border-color 0.3s ease;
   box-sizing: border-box;
   will-change: transform;

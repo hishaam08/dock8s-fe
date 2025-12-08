@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 export default function InteractiveGridScript() {
   useEffect(() => {
-    const GRID_BLOCK_SIZE = 60;
+    const GRID_BLOCK_SIZE = 40;
     const GRID_HIGHLIGHT_DURATION = 300;
 
     let gridBlocks: any[] = [];
